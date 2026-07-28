@@ -190,7 +190,11 @@ async function submitRecord(record){
 }
 
 function todayStr(d = new Date()){
-  return d.toISOString().slice(0,10);
+  // 기기의 로컬(한국) 날짜 기준으로 계산 (UTC 변환 X)
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 function startOfWeek(d = new Date()){
   const day = d.getDay() === 0 ? 7 : d.getDay(); // 월=1 ... 일=7
