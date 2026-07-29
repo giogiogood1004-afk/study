@@ -23,6 +23,8 @@
     --silver-bg:#f9fafb;
     --bronze:#c2703d;
     --bronze-bg:#fff7ed;
+    --danger:#dc2626;
+    --success:#16a34a;
     --shadow-sm:0 1px 2px rgba(15,23,42,0.04);
     --shadow-md:0 4px 16px rgba(15,23,42,0.06);
     --shadow-lg:0 12px 32px rgba(15,23,42,0.10);
@@ -97,7 +99,7 @@
   }
 
   .stats-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px;
   }
   .stat-card{
     background:var(--card);border:1px solid var(--border);border-radius:16px;
@@ -107,6 +109,9 @@
   .stat-card .stat-label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
   .stat-card .stat-value{font-size:19px;font-weight:800;letter-spacing:-0.4px;}
   .stat-card .stat-value.accent{color:var(--primary);}
+  .stat-card .stat-sub{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600;}
+  .stat-card .stat-sub.positive{color:var(--success);}
+  .stat-card .stat-sub.negative{color:var(--danger);}
 
   .card{
     background:var(--card);
@@ -119,8 +124,6 @@
     transition:background 0.3s ease, border-color 0.3s ease, box-shadow 0.25s ease;
   }
   .card:hover{box-shadow:var(--shadow-lg);}
-  .card:nth-of-type(2){animation-delay:0.05s;}
-  .card:nth-of-type(3){animation-delay:0.1s;}
   @keyframes fadeUp{
     from{opacity:0;transform:translateY(12px);}
     to{opacity:1;transform:translateY(0);}
@@ -140,6 +143,7 @@
     outline:none;border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-light);
     background:var(--card);
   }
+  .form-actions{display:flex;gap:8px;}
   button{
     background:linear-gradient(135deg,var(--primary),var(--primary-dark));
     color:#fff;border:none;border-radius:12px;
@@ -151,6 +155,11 @@
   button:hover{transform:translateY(-2px);box-shadow:0 6px 18px color-mix(in srgb, var(--primary) 45%, transparent);}
   button:active{transform:translateY(0) scale(0.97);}
   button:disabled{background:#c7d2fe;box-shadow:none;cursor:not-allowed;transform:none;}
+  button.ghost{
+    background:var(--bg);color:var(--muted);box-shadow:none;border:1.5px solid var(--border);
+  }
+  button.ghost:hover{transform:none;box-shadow:none;color:var(--text);}
+  #cancelEditBtn{display:none;}
 
   .segmented{
     position:relative;display:flex;background:var(--bg);border-radius:999px;
@@ -201,8 +210,8 @@
   .empty .empty-icon{font-size:26px;display:block;margin-bottom:8px;opacity:0.6;}
   .chart-wrap{max-width:460px;margin:0 auto;position:relative;min-height:180px;}
   .status{font-size:12.5px;color:var(--muted);margin-top:10px;min-height:16px;font-weight:500;}
-  .status.success{color:#16a34a;font-weight:700;}
-  .status.error{color:#dc2626;font-weight:700;}
+  .status.success{color:var(--success);font-weight:700;}
+  .status.error{color:var(--danger);font-weight:700;}
   footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px;font-weight:500;}
 
   .spinner{
@@ -212,6 +221,24 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  .my-record-row{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 4px;border-bottom:1px solid var(--border);font-size:13.5px;
+    animation:fadeIn 0.3s ease both;
+  }
+  .my-record-row:last-child{border-bottom:none;}
+  .my-record-info{display:flex;flex-direction:column;gap:2px;}
+  .my-record-info .mr-subject{font-weight:700;}
+  .my-record-info .mr-meta{font-size:11.5px;color:var(--muted);}
+  .my-record-actions{display:flex;gap:6px;flex:0 0 auto;}
+  .icon-btn{
+    width:30px;height:30px;flex:0 0 30px;border-radius:9px;padding:0;
+    display:flex;align-items:center;justify-content:center;font-size:13px;
+    background:var(--bg);color:var(--muted);box-shadow:none;border:1px solid var(--border);
+  }
+  .icon-btn:hover{transform:none;box-shadow:none;color:var(--text);}
+  .icon-btn.danger:hover{color:var(--danger);border-color:var(--danger);}
+
   @media (max-width:520px){
     .brand-text h1{font-size:16px;}
     .brand-text p{font-size:11.5px;}
@@ -219,7 +246,8 @@
     .stat-card{padding:11px 10px;border-radius:13px;}
     .stat-card .stat-value{font-size:16px;}
     .field{min-width:100%;}
-    button[type="submit"]{width:100%;}
+    .form-actions{width:100%;}
+    .form-actions button{flex:1;}
     .card{padding:17px;border-radius:18px;}
     th,td{padding:10px 6px;font-size:12.5px;}
     .avatar{width:24px;height:24px;font-size:11px;border-radius:8px;}
@@ -256,10 +284,15 @@
       <div class="stat-label">🔥 오늘 기록</div>
       <div class="stat-value" id="statToday">-</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">📍 내 위치</div>
+      <div class="stat-value" id="statMyRank">-</div>
+      <div class="stat-sub" id="statMyRankSub">이름을 입력해보세요</div>
+    </div>
   </div>
 
   <div class="card">
-    <h2>✏️ 공부 시간 기록하기</h2>
+    <h2 id="formTitle">✏️ 공부 시간 기록하기</h2>
     <form class="log-form" id="logForm">
       <div class="field">
         <label>이름</label>
@@ -281,9 +314,20 @@
         <label>시간(분)</label>
         <input type="number" id="minutesInput" min="1" max="600" placeholder="60" required>
       </div>
-      <button type="submit" id="submitBtn">기록하기</button>
+      <div class="form-actions">
+        <button type="button" class="ghost" id="cancelEditBtn">취소</button>
+        <button type="submit" id="submitBtn">기록하기</button>
+      </div>
     </form>
     <div class="status" id="formStatus"></div>
+  </div>
+
+  <div class="card">
+    <h2>📝 내가 남긴 기록</h2>
+    <div id="myRecordsList"></div>
+    <div class="empty" id="myRecordsEmpty" style="display:none;">
+      <span class="empty-icon">🗂️</span>이 기기에서 남긴 기록이 아직 없어요.
+    </div>
   </div>
 
   <div class="card">
@@ -323,7 +367,22 @@ const API_URL = "https://script.google.com/macros/s/AKfycby9MwF3SQmpOdzPgJTZwswn
 
 const LOCAL_KEY = "studyRankingRecords";
 const THEME_KEY = "studyRankingTheme";
+const DEVICE_KEY = "studyRankingDeviceId";
+const MY_NAME_KEY = "studyRankingMyName";
 const AVATAR_COLORS = ["#6366f1","#ec4899","#f59e0b","#10b981","#3b82f6","#ef4444","#8b5cf6","#14b8a6"];
+
+/* ---------- 기기 식별자 (수정/삭제 권한 확인용) ---------- */
+function getDeviceId(){
+  let id = localStorage.getItem(DEVICE_KEY);
+  if(!id){
+    id = "dev-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,10);
+    localStorage.setItem(DEVICE_KEY, id);
+  }
+  return id;
+}
+function makeRecordId(){
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8);
+}
 
 /* ---------- 다크모드 ---------- */
 function applyTheme(theme){
@@ -361,18 +420,28 @@ async function fetchRecords(){
   return loadLocalRecords();
 }
 
-async function submitRecord(record){
+/* action: "create" | "update" | "delete" */
+async function performAction(action, payload){
   if(API_URL){
-    await fetch(API_URL, {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {"Content-Type": "text/plain"},
-      body: JSON.stringify(record)
+      body: JSON.stringify({ action, ...payload })
     });
-  } else {
-    const records = loadLocalRecords();
-    records.push(record);
-    saveLocalRecords(records);
+    const data = await res.json();
+    if(data && data.ok === false) throw new Error(data.error || "요청 실패");
+    return data;
   }
+  let records = loadLocalRecords();
+  if(action === "create"){
+    records.push(payload);
+  } else if(action === "update"){
+    records = records.map(r => (r.id === payload.id && r.deviceId === payload.deviceId) ? {...r, ...payload} : r);
+  } else if(action === "delete"){
+    records = records.filter(r => !(r.id === payload.id && r.deviceId === payload.deviceId));
+  }
+  saveLocalRecords(records);
+  return { ok: true };
 }
 
 function todayStr(d = new Date()){
@@ -398,6 +467,7 @@ function hashColor(str){
 let currentRange = "today";
 let subjectChart = null;
 let lastRecords = [];
+let editingId = null; // 현재 수정 중인 기록의 id (null이면 신규 작성 모드)
 
 function filterByRange(records, range){
   const now = new Date();
@@ -448,6 +518,137 @@ function renderStats(records){
   document.getElementById("statPeople").textContent = `${allNames.size}명`;
   document.getElementById("statTotal").textContent = formatMinutes(totalMins);
   document.getElementById("statToday").textContent = `${todayRecords.length}건`;
+}
+
+/* ---------- 반 평균 대비 내 위치 ---------- */
+function currentNameForComparison(){
+  const typed = document.getElementById("nameInput").value.trim();
+  if(typed) return typed;
+  return localStorage.getItem(MY_NAME_KEY) || "";
+}
+
+function renderMyPosition(records){
+  const valueEl = document.getElementById("statMyRank");
+  const subEl = document.getElementById("statMyRankSub");
+  const name = currentNameForComparison();
+
+  const filtered = filterByRange(records, currentRange);
+  const ranked = aggregateByName(filtered);
+
+  if(!name){
+    valueEl.textContent = "-";
+    subEl.textContent = "이름을 입력해보세요";
+    subEl.className = "stat-sub";
+    return;
+  }
+  if(ranked.length === 0){
+    valueEl.textContent = "-";
+    subEl.textContent = "아직 이 기간 기록이 없어요";
+    subEl.className = "stat-sub";
+    return;
+  }
+
+  const idx = ranked.findIndex(r => r.name === name);
+  const total = ranked.reduce((s,r) => s + r.minutes, 0);
+  const avg = total / ranked.length;
+
+  if(idx === -1){
+    valueEl.textContent = "기록 없음";
+    subEl.textContent = `반 평균 ${formatMinutes(Math.round(avg))}`;
+    subEl.className = "stat-sub";
+    return;
+  }
+
+  const myMinutes = ranked[idx].minutes;
+  const diff = Math.round(myMinutes - avg);
+  valueEl.textContent = `${idx + 1}등 / ${ranked.length}명`;
+
+  if(diff === 0){
+    subEl.textContent = "반 평균과 동일";
+    subEl.className = "stat-sub";
+  } else if(diff > 0){
+    subEl.textContent = `평균보다 +${formatMinutes(diff)}`;
+    subEl.className = "stat-sub positive";
+  } else {
+    subEl.textContent = `평균보다 -${formatMinutes(Math.abs(diff))}`;
+    subEl.className = "stat-sub negative";
+  }
+}
+
+document.getElementById("nameInput").addEventListener("input", () => renderMyPosition(lastRecords));
+
+/* ---------- 내가 남긴 기록 (수정/삭제) ---------- */
+function renderMyRecords(records){
+  const deviceId = getDeviceId();
+  const mine = records
+    .filter(r => r.deviceId && r.deviceId === deviceId && r.id)
+    .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 15);
+
+  const listEl = document.getElementById("myRecordsList");
+  const emptyEl = document.getElementById("myRecordsEmpty");
+  listEl.innerHTML = "";
+
+  if(mine.length === 0){
+    emptyEl.style.display = "block";
+    return;
+  }
+  emptyEl.style.display = "none";
+
+  mine.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "my-record-row";
+    row.innerHTML = `
+      <div class="my-record-info">
+        <span class="mr-subject">${r.subject} · ${formatMinutes(Number(r.minutes)||0)}</span>
+        <span class="mr-meta">${r.date}</span>
+      </div>
+      <div class="my-record-actions">
+        <button type="button" class="icon-btn" data-edit="${r.id}" aria-label="수정">✏️</button>
+        <button type="button" class="icon-btn danger" data-delete="${r.id}" aria-label="삭제">🗑️</button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+
+  listEl.querySelectorAll("[data-edit]").forEach(btn => {
+    btn.addEventListener("click", () => startEdit(btn.dataset.edit));
+  });
+  listEl.querySelectorAll("[data-delete]").forEach(btn => {
+    btn.addEventListener("click", () => handleDelete(btn.dataset.delete));
+  });
+}
+
+function startEdit(id){
+  const record = lastRecords.find(r => r.id === id);
+  if(!record) return;
+  editingId = id;
+  document.getElementById("subjectInput").value = record.subject;
+  document.getElementById("minutesInput").value = record.minutes;
+  document.getElementById("formTitle").textContent = "✏️ 기록 수정하기";
+  document.getElementById("submitBtn").textContent = "수정 완료";
+  document.getElementById("cancelEditBtn").style.display = "inline-block";
+  document.getElementById("minutesInput").focus();
+}
+
+function cancelEdit(){
+  editingId = null;
+  document.getElementById("formTitle").textContent = "✏️ 공부 시간 기록하기";
+  document.getElementById("submitBtn").textContent = "기록하기";
+  document.getElementById("cancelEditBtn").style.display = "none";
+  document.getElementById("minutesInput").value = "";
+}
+document.getElementById("cancelEditBtn").addEventListener("click", cancelEdit);
+
+async function handleDelete(id){
+  if(!confirm("이 기록을 삭제할까요?")) return;
+  try{
+    await performAction("delete", { id, deviceId: getDeviceId() });
+    if(editingId === id) cancelEdit();
+    await refreshAll();
+  }catch(err){
+    alert("삭제에 실패했어요: " + err.message);
+  }
 }
 
 function renderRanking(records){
@@ -516,6 +717,8 @@ async function refreshAll(){
   renderStats(records);
   renderRanking(records);
   renderChart(records);
+  renderMyRecords(records);
+  renderMyPosition(records);
 }
 
 const tabButtons = document.querySelectorAll(".tab-btn");
@@ -532,6 +735,7 @@ tabButtons.forEach((btn, idx) => {
     const titles = {today:"🏆 오늘의 랭킹", week:"🏆 이번 주 랭킹", all:"🏆 전체 누적 랭킹"};
     document.getElementById("rankTitle").textContent = titles[currentRange];
     renderRanking(lastRecords);
+    renderMyPosition(lastRecords);
   });
 });
 
@@ -549,23 +753,43 @@ document.getElementById("logForm").addEventListener("submit", async (e) => {
   statusEl.innerHTML = `<span class="spinner"></span>저장 중...`;
 
   try{
-    await submitRecord({
-      name, subject, minutes,
-      date: todayStr(),
-      timestamp: new Date().toISOString()
-    });
-    document.getElementById("minutesInput").value = "";
-    statusEl.className = "status success";
-    statusEl.textContent = "✓ 저장 완료! 랭킹에 반영됐어요.";
+    localStorage.setItem(MY_NAME_KEY, name);
+
+    if(editingId){
+      await performAction("update", {
+        id: editingId,
+        deviceId: getDeviceId(),
+        subject,
+        minutes
+      });
+      statusEl.className = "status success";
+      statusEl.textContent = "✓ 수정 완료!";
+      cancelEdit();
+    } else {
+      await performAction("create", {
+        id: makeRecordId(),
+        deviceId: getDeviceId(),
+        name, subject, minutes,
+        date: todayStr(),
+        timestamp: new Date().toISOString()
+      });
+      document.getElementById("minutesInput").value = "";
+      statusEl.className = "status success";
+      statusEl.textContent = "✓ 저장 완료! 랭킹에 반영됐어요.";
+    }
     await refreshAll();
   }catch(err){
     statusEl.className = "status error";
-    statusEl.textContent = "저장 실패: 인터넷 연결이나 API 주소를 확인해주세요.";
+    statusEl.textContent = "실패: 인터넷 연결이나 API 주소를 확인해주세요.";
   }finally{
     submitBtn.disabled = false;
     setTimeout(() => { statusEl.textContent = ""; statusEl.className = "status"; }, 2500);
   }
 });
+
+/* 마지막으로 사용한 이름 자동 입력 (편의 기능) */
+const savedName = localStorage.getItem(MY_NAME_KEY);
+if(savedName) document.getElementById("nameInput").value = savedName;
 
 if(!API_URL){
   document.getElementById("setupBanner").style.display = "block";
